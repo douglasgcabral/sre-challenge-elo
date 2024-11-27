@@ -83,3 +83,78 @@ Ao terminar o desafio, convide o 'ELO-SRE' para contribuir com o seu repositóri
 <p align="center">
   <img src="ca.jpg" alt="Challange accepted" />
 </p>
+
+
+Prezados, boa tarde.
+
+Meu Nome é Douglas, não tenho conhecimento em Kubernets, mas tentei fazer o meu melhor. Estou a procura de um emprego e uma oportunidade de poder crescer e aprender mais com as pessoas. 
+Procurei diversos vídeos e procurei ajuda, como nunca atuei na ferramenta, tive dificuldade na execução e na compreensão. Outro ponto, meu computador é bem fraco, não consegui executar o MINIKUBE ou KUBECLT, tive muito problemas em performance. 
+Qualquer dúvida estou a disposição.
+
+
+Instalei uma máquina virtual com o Virtual BOX
+SO UBUNTU 24.04
+2GB
+2 Núcleos
+40HD
+
+Segue abaixo as respostas:
+
+##Para garantir que o número de pods da aplicação escale automaticamente conforme a carga, você precisa configurar o Horizontal Pod Autoscaler (HPA)##
+
+Vou deixar abaixo o YAML do HPA:
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sre-challenge-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sre-challenge-app
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 50
+        
+Após isso, aplicar o comando abaixo:
+
+kubectl apply -f sre-challenge-app-hpa.yaml
+
+##Armazenar as credenciais do MySQL em uma Secret do Kubernetes##
+
+Para melhorar a segurança, podemos criar uma Secret no Kubernetes para armazenar as credenciais do banco de dados. Exemplo:
+ 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: <base64-encoded-password>
+  MYSQL_USER: <base64-encoded-username>
+  MYSQL_PASSWORD: <base64-encoded-password>
+  MYSQL_DATABASE: <base64-encoded-db-name>
+
+Para codificar os valores em base64:
+echo -n 'rootpassword' | base64
+Refereciar a Secret no Deployment da aplicação
+
+##O que você faria para melhorar essa configuração e torná-la "pronta para produção"?##
+
+Redundância: Configurar réplicas para garantir alta disponibilidade.
+Backups: Garantir que o banco de dados tenha uma estratégia de backup automatizada.
+Monitoramento: Implementar soluções de monitoramento como Prometheus e Grafana.
+Segurança: Configurar RBAC e Network Policies para restringir o acesso aos serviços.
+Como você abordaria o isolamento entre microsserviços mantidos por equipes diferentes?
+Namespaces: Criar namespaces diferentes para isolar os serviços das diferentes equipes.
+Network Policies: Configurar políticas de rede para garantir que os serviços só possam se comunicar quando necessário, bloqueando comunicação não autorizada entre os serviços.
+Como você evitaria que outros serviços no cluster se comunicassem com sre-challenge-app?
+Usando Network Policies para restringir a comunicação com sre-challenge-app apenas a serviços autorizados.
+Com isso, você tem uma configuração completa para rodar o desafio no Kubernetes, considerando tanto as correções de problema quanto boas práticas de segurança e escalabilidade.
+
+
